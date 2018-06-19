@@ -11,6 +11,8 @@ import com.mparticle.MParticle;
 import com.mparticle.commerce.CommerceEvent;
 import com.mparticle.internal.KitManager;
 import com.mparticle.internal.Logger;
+import com.mparticle.kits_core.KitIntegration;
+import com.mparticle.kits_core.ReportingMessage;
 
 import org.json.JSONObject;
 
@@ -30,7 +32,7 @@ import io.branch.referral.util.BranchEvent;
  * Embedded implementation of the Branch Metrics SDK
  * <p/>
  */
-public class BranchMetricsKit extends KitIntegration implements
+public class BranchMetricsKit extends AbstractKitIntegration implements
         KitIntegration.EventListener,
         KitIntegration.CommerceListener,
         KitIntegration.AttributeListener,
@@ -53,7 +55,7 @@ public class BranchMetricsKit extends KitIntegration implements
     }
 
     @Override
-    protected List<ReportingMessage> onKitCreate(Map<String, String> settings, Context context) {
+    public List<ReportingMessage> onKitCreate(Map<String, String> settings, Context context) {
         branchUtil = new BranchUtil();
         Branch.disableDeviceIDFetch(MParticle.isAndroidIdDisabled());
         Branch.getAutoInstance(getContext().getApplicationContext(), getSettings().get(BRANCH_APP_KEY)).initSession(this);
@@ -69,7 +71,7 @@ public class BranchMetricsKit extends KitIntegration implements
     public List<ReportingMessage> setOptOut(boolean b) {
         getBranch().disableTracking(b);
         List<ReportingMessage> messages = new LinkedList<>();
-        messages.add(new ReportingMessage(this, ReportingMessage.MessageType.OPT_OUT, System.currentTimeMillis(), null));
+        messages.add(new ReportingMessageImpl(this, ReportingMessageImpl.MessageType.OPT_OUT, System.currentTimeMillis(), null));
         return messages;
     }
 
@@ -92,7 +94,7 @@ public class BranchMetricsKit extends KitIntegration implements
     public List<ReportingMessage> logEvent(MPEvent event) {
         branchUtil.createBranchEventFromMPEvent(event).logEvent(getContext());
         List<ReportingMessage> messages = new LinkedList<>();
-        messages.add(ReportingMessage.fromEvent(this, event));
+        messages.add(ReportingMessageImpl.fromEvent(this, event));
         return messages;
     }
 
@@ -105,7 +107,7 @@ public class BranchMetricsKit extends KitIntegration implements
     public List<ReportingMessage> logEvent(CommerceEvent commerceEvent) {
         branchUtil.createBranchEventFromMPCommerceEvent(commerceEvent).logEvent(getContext());
         List<ReportingMessage> messages = new LinkedList<>();
-        messages.add(ReportingMessage.fromEvent(this, commerceEvent));
+        messages.add(ReportingMessageImpl.fromEvent(this, commerceEvent));
         return messages;
     }
 
@@ -117,7 +119,7 @@ public class BranchMetricsKit extends KitIntegration implements
             logScreenEvent.logEvent(getContext());
 
             List<ReportingMessage> messages = new LinkedList<>();
-            messages.add(new ReportingMessage(this, ReportingMessage.MessageType.SCREEN_VIEW, System.currentTimeMillis(), eventAttributes));
+            messages.add(new ReportingMessageImpl(this, ReportingMessageImpl.MessageType.SCREEN_VIEW, System.currentTimeMillis(), eventAttributes));
             return messages;
         } else {
             return null;
@@ -177,7 +179,7 @@ public class BranchMetricsKit extends KitIntegration implements
     public List<ReportingMessage> logout() {
         getBranch().logout();
         List<ReportingMessage> messageList = new LinkedList<>();
-        messageList.add(ReportingMessage.logoutMessage(this));
+        messageList.add(ReportingMessageImpl.logoutMessage(this));
         return messageList;
     }
 

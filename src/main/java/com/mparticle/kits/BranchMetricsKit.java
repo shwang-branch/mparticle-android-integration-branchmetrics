@@ -11,8 +11,8 @@ import com.mparticle.MParticle;
 import com.mparticle.commerce.CommerceEvent;
 import com.mparticle.internal.KitManager;
 import com.mparticle.internal.Logger;
-import com.mparticle.kits_core.KitIntegration;
-import com.mparticle.kits_core.ReportingMessage;
+import com.mparticle.kits.core.KitIntegration;
+import com.mparticle.kits.core.ReportingMessage;
 
 import org.json.JSONObject;
 
@@ -192,13 +192,13 @@ public class BranchMetricsKit extends AbstractKitIntegration implements
             AttributionResult result = new AttributionResult()
                     .setParameters(jsonResult)
                     .setServiceProviderId(this.getConfiguration().getKitId());
-            getKitManager().onResult(result);
+            getAttributionListener().onResult(result);
         }
         if (branchError != null) {
             AttributionError error = new AttributionError()
                     .setMessage(branchError.toString())
                     .setServiceProviderId(this.getConfiguration().getKitId());
-            getKitManager().onError(error);
+            getAttributionListener().onError(error);
         }
     }
 
